@@ -11,7 +11,6 @@ import UIKit
 class ToppingsViewController: UITableViewController {
     
     var cake: Product!
-    var toppings = [Product]()
     var selectedToppings = Set<Product>()
 
     override func viewDidLoad() {
@@ -20,16 +19,6 @@ class ToppingsViewController: UITableViewController {
         // Do any additional setup after loading the view.
         title = "Add Toppings"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Place Order", style: .plain, target: self, action: #selector(placeOrder))
-        guard let url = Bundle.main.url(forResource: "toppings", withExtension: "json") else {
-            fatalError("Can't find toppings json in app bundle")
-        }
-        if let data = try? Data(contentsOf: url) {
-            let decoder = JSONDecoder()
-            toppings = (try? decoder.decode([Product].self, from: data)) ?? [Product]()
-            toppings.sort {
-                return $0.name < $1.name
-            }
-        }
     }
     
 
@@ -44,12 +33,12 @@ class ToppingsViewController: UITableViewController {
     */
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return toppings.count
+        return Menu.shared.toppings.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let topping = toppings[indexPath.row]
+        let topping = Menu.shared.toppings[indexPath.row]
         cell.textLabel?.text = "\(topping.name) - $\(topping.price)"
         cell.detailTextLabel?.text = topping.description
         if selectedToppings.contains(topping) {
@@ -65,7 +54,7 @@ class ToppingsViewController: UITableViewController {
         guard let cell = tableView.cellForRow(at: indexPath) else {
             fatalError("Unable find cell that was tapped")
         }
-        let topping = toppings[indexPath.row]
+        let topping = Menu.shared.toppings[indexPath.row]
         if cell.accessoryType == .checkmark {
             // this was checked - unchek it
             cell.accessoryType = .none
