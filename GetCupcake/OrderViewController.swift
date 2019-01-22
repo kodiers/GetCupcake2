@@ -73,7 +73,15 @@ class OrderViewController: UIViewController {
     }
     
     func donate(_ order: Order) {
-        
+        // create a Siri interaction from our intent
+        let interaction = INInteraction(intent: order.intent, response: nil)
+        // donate it to the system
+        interaction.donate { (error) in
+            // if there was an error, print it out
+            if let error = error {
+                print(error.localizedDescription)
+            }
+        }
     }
 
 }

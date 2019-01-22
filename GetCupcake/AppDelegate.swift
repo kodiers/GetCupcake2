@@ -42,18 +42,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        if userActivity.activityType == "com.techforline.GetCupcake.order" {
+        if userActivity.activityType == "OrderIntent" {
             guard let navigationController = window?.rootViewController as? UINavigationController else {
                 fatalError("Expected NavigationController as root view controller")
             }
             guard let orderViewController = navigationController.storyboard?.instantiateViewController(withIdentifier: "OrderViewController") as? OrderViewController else {
                 fatalError("Unable to load OrderViewController from storyboard")
             }
-            if let order = Order(from: userActivity.userInfo?["order"] as? Data) {
-                orderViewController.cake = order.cake
-                orderViewController.toppings = order.toppings
-                navigationController.pushViewController(orderViewController, animated: false)
+            guard let intent = userActivity.interaction?.intent as? OrderIntent else {
+                print("Receive unknown intent.")
+                return true
             }
+            guard let order = Order(from: intent) else {
+                print("Received bad intent.")
+                return true
+            }
+            orderViewController.cake = order.cake
+            orderViewController.toppings = order.toppings
+            navigationController.pushViewController(orderViewController, animated: true)
         }
         return true
     }
